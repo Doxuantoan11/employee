@@ -1,0 +1,40 @@
+
+ <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+
+<form  action="/update" method="POST" style="width: 450px;">
+    <h1 class="container">Sửa thông tin cán bộ</h1>
+    <div class="form-group container" >
+      <label for="id">ID</label>
+      <input type="text" class="form-control" id="id" name = "id" value="<%= test._id  %>" >
+    </div>
+    <div class="form-group container" >
+      <label for="hoten">họ tên</label>
+      <input type="text" class="form-control" id="hoten" name ="hoten" value="<%= test.hoten  %>">
+    </div>
+    <div class="form-group container">
+      <label for="tuoi">tuổi</label>
+      <input type="number" class="form-control" id="tuoi" name ="tuoi" value="<%= test.tuoi  %>">
+    </div>
+    <div class="form-group container">
+      <label for="gioitinh">giới tính</label>
+      <input type="text" class="form-control" id="gioitinh" name ="gioitinh" value="<%= test.gioitinh  %>">
+    </div>
+    <div class="form-group container">
+      <label for="diachi">địa chỉ</label>
+      <input type="text" class="form-control" id="diachi" name ="diachi" value="<%= test.diachi  %>">
+    </div>
+    <div class="form-group container">
+        <button type="submit" class="btn btn-primary ">Sửa</button>
+    </div>
+
+  </form> 
+
+
+<!-- <form action="/update" method="POST">
+    id: <input type="text" name="id" value="<%= test._id  %>"><br>
+    hoten: <input type="text" name="hoten" value="<%= test.hoten  %>"><br>
+    tuoi: <input type="number" name="tuoi" value="<%= test.tuoi  %>"><br>
+    gioitinh: <input type="text" name="gioitinh" value="<%= test.gioitinh  %>"><br>
+    diachi: <input type="text" name="diachi" value="<%= test.diachi  %>"><br>
+    <button type="submit"> Cập nhật cán bộ</button>
+</form> -->

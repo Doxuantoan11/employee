@@ -3,6 +3,13 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var MongoClient = require('mongodb').MongoClient;
 
+
+//upload file
+var multer = require('multer');
+
+
+
+
 const uri = 'mongodb+srv://dotoan:toan123@cluster0.g8eqyhb.mongodb.net/canbo1?retryWrites=true&w=majority'
 
 const connectDB = async () => {
@@ -33,6 +40,9 @@ var canboSchema =new mongoose.Schema({
     type: String,
   },
   diachi: {
+    type: String,
+  },
+  hinhanh: {
     type: String,
   },
 });
@@ -94,8 +104,36 @@ router.post('/signup', function(req, res) {
 router.get('/form-add', function(req, res) {
   res.render('form-add', {});
 });
-router.post('/add', function(req, res) {
-  test.create(req.body);
+
+let urlImage;
+var storage = multer.diskStorage({
+  destination:function(req, file,cb){
+    if (file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg'){
+          cb(null, 'public/images');
+        }else{
+          cb(new Error('not image'),false);
+        }
+  },
+  filename:function(req, file,cb){
+    urlImage = Date.now()+'.jpg';
+    cb(null,urlImage);
+  }
+});
+
+var upload = multer({storage:storage});
+
+router.post('/add',upload.single('hinhanh'), function(req, res,next) {
+  const file = req.file;
+  if(!file) {return next}
+  test.create({ hoten: req.body.hoten,
+    tuoi: req.body.tuoi,
+    gioitinh: req.body.gioitinh,
+    diachi: req.body.diachi,
+    hinhanh: urlImage,
+ });
+
   res.redirect('/');
 });
 
@@ -119,6 +157,7 @@ router.get('/form-delete/:id', function(req, res) {
     res.redirect('/');
   })
 });
+
 
 
 //tim kiem

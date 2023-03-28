@@ -35,6 +35,7 @@
               <th>Tuổi</th>
               <th>Giới tính</th>
               <th>Địa chỉ</th>
+              <th>hinhanh</th>
               <th>Tuỳ Chọn</th>
             </tr>
             <% test.forEach(item => { %> 
@@ -44,6 +45,7 @@
               <td><%= item.tuoi %> </td>
               <td><%= item.gioitinh %> </td>
               <td><%= item.diachi %> </td>
+              <td><img src="./images/<%= item.hinhanh %>" alt="" class="avatar"></td>
               <td> 
                   <a href="./form-update/<%= item._id %> ">Sửa</a>
                   <a href="./form-delete/<%= item._id %> ">xoá</a>

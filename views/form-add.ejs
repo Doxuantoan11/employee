@@ -2,7 +2,7 @@
 
 
 
-<form  action="./add" method="POST" style="width: 400px;">
+<form  action="./add" method="POST" style="width: 400px;" enctype="multipart/form-data">
     <h1 class="container">Thêm cán bộ</h1>
     <div class="form-group container" >
       <label for="hoten">họ tên</label>
@@ -19,6 +19,10 @@
     <div class="form-group container">
       <label for="diachi">địa chỉ</label>
       <input type="text" class="form-control" id="diachi" name = "diachi">
+    </div>
+    <div class="form-group container">
+      <label for="hinhanh">địa chỉ</label>
+      <input type="file" class="form-control" id="hinhanh" name = "hinhanh" style="width: 300px;">
     </div>
     <div class="form-group container">
         <button type="submit" class="btn btn-primary ">Thêm cán bộ</button>

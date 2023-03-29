@@ -1,11 +1,10 @@
 
  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 
-<form  action="/update" method="POST" style="width: 450px;">
+<form  action="/update" method="POST" style="width: 450px;" >
     <h1 class="container">Sửa thông tin cán bộ</h1>
     <div class="form-group container" >
-      <label for="id">ID</label>
-      <input type="text" class="form-control" id="id" name = "id" value="<%= test._id  %>" >
+      <input type="hidden" class="form-control" id="id" name = "id" value="<%= test._id  %>" >
     </div>
     <div class="form-group container" >
       <label for="hoten">họ tên</label>
@@ -23,6 +22,11 @@
       <label for="diachi">địa chỉ</label>
       <input type="text" class="form-control" id="diachi" name ="diachi" value="<%= test.diachi  %>">
     </div>
+    <!-- <div class="form-group container">
+      <label  for="hinhanh">Hình ảnh</label>
+      <img src="./images/<%= test.hinhanh %>" alt="" width="65" height="auto" class="ml-5 mb-3" id ="hinhnen">
+      <input type="file" class="form-control" id="hinhanh" name = "hinhanh" style="width: 370px;" >
+    </div> -->
     <div class="form-group container">
         <button type="submit" class="btn btn-primary ">Sửa</button>
     </div>
@@ -30,11 +34,11 @@
   </form> 
 
 
-<!-- <form action="/update" method="POST">
-    id: <input type="text" name="id" value="<%= test._id  %>"><br>
-    hoten: <input type="text" name="hoten" value="<%= test.hoten  %>"><br>
-    tuoi: <input type="number" name="tuoi" value="<%= test.tuoi  %>"><br>
-    gioitinh: <input type="text" name="gioitinh" value="<%= test.gioitinh  %>"><br>
-    diachi: <input type="text" name="diachi" value="<%= test.diachi  %>"><br>
-    <button type="submit"> Cập nhật cán bộ</button>
-</form> -->
+  <!-- <script>
+    hinhanh.onchange =event => {
+      const [file] = hinhanh.files;
+      if(file) { 
+        hinhnen.src = URL.createObjectURL(file)
+      }
+    }
+    </script> -->

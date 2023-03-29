@@ -7,9 +7,10 @@ var multer = require('multer');
 var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var methodOverride = require('method-override')
 
 var app = express();
-
+app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({ extended: true }));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -2,7 +2,6 @@ body {
   margin: 0;
   padding: 0;
   height: 100vh;
-  background-color: #17a2b8;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -29,7 +28,26 @@ a {
   margin-top: -85px;
 }
 
-.cb-search {
-  background: #fff;
-  min-height: 100vh;
+
+/* css them */
+.table-wapper {
+  overflow-x: scroll;
+  width: 100vw;
+}
+
+.table {
+  width: 100vh;
+  white-space: nowrap;
+}
+
+.nav-item{
+  font-size: 1.25rem;
+}
+
+.tr-hover:hover{
+  background-color: #D2D2D2;
+}
+
+.nav-hover:hover{
+ color: #000;
 }

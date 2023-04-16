@@ -1,65 +1,99 @@
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<link rel="stylesheet" href="./stylesheets/style.css">
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">Trang chủ</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a  class="nav-link" href="./form-add">Thêm</a>
-      </li>
-      <li class="nav-item">
-        <a  class="nav-link" href="./search">Tìm kiếm</a>
-      </li>
-    </ul> 
+<%- include('partials/header.ejs') %>
 
 
-</nav>
-
-
-<div class="cb-search ">
-  <h1>Nhập thông tin cán bộ cần tìm</h1>
-  
-  <form  action="./search/results" method="GET" style="width: 400px;">
-      <div class="form-group container" >
-        <label for="hoten">họ tên</label>
-        <input type="text" class="form-control" id="hoten" name = "hoten">
-      </div>
-  
+<h1>Nhập thông tin cán bộ cần tìm</h1>
+  <div class="cb-search d-flex ">
+         <!-- form ho ten -->
+    <form class="form-name  d-flex flex-row" action="/search/name" method="POST" style="width: 400px;">
       <div class="form-group container">
-          <button type="submit" class="btn btn-primary ">Tìm</button>
-      </div>  
+        <label for="hoten" >họ tên</label>
+        <input type="text" class="form-control" id="hoten" name="hoten" required>
+      </div>
+      <div class="form-group container mt-4">
+        <button type="submit" class="btn btn-primary name-search-btn ">Tìm</button>
+      </div>
     </form>
-  
-    <h1> Kết quả tìm được</h1>
-  
-    <table  class="table mt-4">
+
+    <h2 class="mt-4">hoặc</h2>
+    <!-- form sdt -->
+    <form class="form-phone d-flex flex-row ml-5" action="/search/sdt" method="POST" style="width: 400px;">
+      <div class="form-group container">
+        <label for="sdt">sdt</label>
+        <input type="text" class="form-control" id="sdt" name="sdt" required>
+      </div>
+      <div class="form-group container mt-4 mr-6">
+        <button type="submit" class="btn btn-primary phone-search-btn">Tìm</button>
+      </div>
+    </form>
+
+  </div>
+  <h1> Kết quả tìm được</h1>
+
+  <section class="table-wapper">
+    <table class=" table mt-4 ">
       <tr>
-        <th scope="row">ID</th>
+        <th>STT</th>
         <th>Hình ảnh</th>
         <th>Họ tên</th>
-        <th>Tuổi</th>
+        <th>Ngày sinh</th>
         <th>Giới tính</th>
         <th>Địa chỉ</th>
+        <th>sdt</th>
+        <th>Chức vụ</th>
+        <th>Phòng ban</th>
+        <th>Ngày vào</th>
+        <th>Tình trạng</th>
         <th>Tuỳ Chọn</th>
       </tr>
-      <% test.forEach(item => { %> 
-       <tr>
-        <td><%= item._id %> </td>
-        <td><img src="./images/<%= item.hinhanh %>" alt="" class="avatar"></td>
-        <td><%= item.hoten %> </td>
-        <td><%= item.tuoi %> </td>
-        <td><%= item.gioitinh %> </td>
-        <td><%= item.diachi %> </td>
-        <td> 
-            <a href="./form-update/<%= item._id %> ">Sửa</a>
-            <a href="./form-delete/<%= item._id %> ">xoá</a>
-        </td>
-      </tr>
-      <% }); %>
+      <% var stt=1; test.forEach(item=> { %>
+        <tr class="tr-hover">
+          <td class="align-middle">
+            <%= stt++ %>
+          </td>
+          <td class="align-middle"><img src="/images/<%= item.hinhanh %>" alt="" class="avatar"></td>
+          <td class="align-middle">
+            <%= item.hoten %>
+          </td>
+          <td class="align-middle">
+            <%= item.ngaysinh %>
+          </td>
+          <td class="align-middle">
+            <%= item.gioitinh %>
+          </td>
+          <td class="align-middle">
+            <%= item.diachi %>
+          </td>
+          <td class="align-middle">
+            <%= item.sdt %>
+          </td>
+          <td class="align-middle">
+            <%= item.chucvu %>
+          </td>
+          <td class="align-middle">
+            <%= item.phongban %>
+          </td>
+          <td class="align-middle">
+            <%= item.ngayvaocongty %>
+          </td>
+          <td class="align-middle">
+            <%= item.tinhtrang %>
+          </td>
+          <td class="align-middle">
+            <a class="btn btn-primary" href="/form-update/<%= item._id %> ">Sửa</a>
+            <a class="btn btn-danger" href="/form-delete/<%= item._id %> ">xoá</a>
+          </td>
+        </tr>
+        <% }); %>
     </table>
-</div>
+  </section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    $('name-search-btn').click(function(){
+      $('form-name').submit();
+    });
+    $('phone-search-btn').click(function(){
+      $('form-phone').submit();
+    });
+  });
+</script>

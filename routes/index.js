@@ -2,30 +2,23 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var MongoClient = require('mongodb').MongoClient;
-
+var moment = require('moment');
 
 //upload file
 var multer = require('multer');
 
 
 
-
-const uri = 'mongodb+srv://dotoan:toan123@cluster0.g8eqyhb.mongodb.net/canbo1?retryWrites=true&w=majority'
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(
-      uri,
-      { useNewUrlParser: true, useUnifiedTopology: true }
-    )
-    console.log('Connected to mongoDB')
-  } catch (error) {
-    console.log(error)
-    process.exit(1)
-  }
-}
-
-connectDB()
+mongoose.connect('mongodb://127.0.0.1:27017/canbo', {useNewUrlParser: true, useNewUrlParser: true,  useUnifiedTopology: true});
+var db = mongoose.connection;
+//Bắt sự kiện error
+db.on('error', function(err) {
+  if (err) console.log(err)
+});
+//Bắt sự kiện open
+db.once('open', function() {
+  console.log("Kết nối thành công !");
+});
 
 
 //SCHEMA
@@ -33,8 +26,8 @@ var canboSchema =new mongoose.Schema({
   hoten: {
     type: String,
   },
-  tuoi: {
-    type: Number,
+  ngaysinh: {
+    type: String,
   },
   gioitinh: {
     type: String,
@@ -42,9 +35,24 @@ var canboSchema =new mongoose.Schema({
   diachi: {
     type: String,
   },
+  sdt: {
+   type: String,
+  },
+  chucvu: {
+    type: String,
+  },
+  phongban: {
+    type: String,
+  },
+  ngayvaocongty: {
+    type: String,
+  },
   hinhanh: {
     type: String,
   },
+  tinhtrang: {
+    type: String,
+  }
 });
 
 var test = mongoose.model('tests', canboSchema);
@@ -128,29 +136,39 @@ var upload = multer({storage:storage});
 
 router.post('/add',upload.single('hinhanh'), function(req, res,next) {
   const file = req.file;
+  const applyDate = moment(req.body.ngayvaocongty).format('YYYY-MM-DD');
+  const birthDate = moment(req.body.ngaysinh).format('YYYY-MM-DD');
+  // var date = new Date(req.body.ngayvaocongty).toUTCString();
+  // date = date.split(' ').slice(0,4).join(' ');
   if(!file) {return next}
   test.create({ 
     hoten: req.body.hoten,
-    tuoi: req.body.tuoi,
+    ngaysinh: birthDate,
     gioitinh: req.body.gioitinh,
     diachi: req.body.diachi,
+    sdt: req.body.sdt,
+    chucvu: req.body.chucvu,
+    phongban: req.body.phongban,
+    ngayvaocongty: applyDate,
+    tinhtrang: req.body.tinhtrang,
     hinhanh: urlImage,
  });
-
   res.redirect('/');
 });
 
 //form update
-router.get('/form-update/:id', function(req, res) {
+router.get('/form-update/:id', upload.single('hinhanh'),  function(req, res) {
   test.findById(req.params.id, function(err, data) {
     res.render('form-update', {test:data});
   })
 });
 
 //sửa 
-router.post('/update', function(req, res, next) {
-  console.log(req.body);
-  test.findByIdAndUpdate(req.body.id, req.body, function(err, data) {
+router.post('/update',upload.single('hinhanh'), function(req, res, next) {
+  const updateData = Object.assign({}, req.body);
+  updateData.hinhanh = urlImage;
+
+  test.findByIdAndUpdate({_id: req.body.id}, updateData, {new:true}, function(err, data) {
     res.redirect('/');
   });
 });
@@ -174,11 +192,31 @@ router.get('/search', function(req, res) {
   });
 });
 
-// router.get('/search/results', function(req, res, next) {
-//   var name = req.params.hoten;
-//   test.find({"hoten":"name"}, function(err, data) {
-//     res.render('search', { test:data });
-//   });
-// });
+
+
+router.post('/search/name', function(req, res, next) {
+  var name = req.body.hoten;
+  test.find({"hoten": {$regex: name, $options: 'i'}}, function(err, data) {
+    if(data){
+      res.render('search', { test:data });
+    }
+    else{
+      res.send("Không tìm thấy cán bộ")
+    }
+  });
+});
+
+
+router.post('/search/sdt', function(req, res, next) {
+  var sdt = req.body.sdt;
+  test.find({"sdt": {$regex: sdt, $options: 'i'}}, function(err, data) {
+    if(data){
+      res.render('search', { test:data });
+    }
+    else{
+      res.send("Không tìm thấy cán bộ")
+    }
+  });
+});
 
 module.exports = router;

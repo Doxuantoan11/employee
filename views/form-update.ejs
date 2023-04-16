@@ -1,44 +1,73 @@
+<%- include('partials/header.ejs') %>
 
- <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<form action="/update" method="POST" style="width: 450px;" enctype="multipart/form-data">
+  <h1 class="container">Sửa thông tin cán bộ</h1>
+  <div class="form-group container">
+    <input type="hidden" class="form-control" id="id" name="id" value="<%= test._id  %>">
+  </div>
+  <div class="form-group container">
+    <label for="hoten">họ tên:</label>
+    <input type="text" class="form-control" id="hoten" name="hoten" value="<%= test.hoten  %>">
+  </div>
+  <div class="form-group container">
+    <label for="ngaysinh">Ngày sinh:</label>
+    <input type="date" class="form-control" id="ngaysinh" name="ngaysinh" value="<%= test.ngaysinh  %>">
+  </div>
+  <div class="form-group container " name="gioitinh">Giới tính :
+    <label class="radio-inline mr-4 ml-4"><input type="radio" name="gioitinh" value="Nam" <%=test.gioitinh==='Nam'
+        ? 'checked' : '' %>>Nam</label>
+    <label class="radio-inline "><input type="radio" name="gioitinh" value="Nữ" <%=test.gioitinh==='Nữ' ? 'checked' : ''
+        %>>Nữ</label>
+  </div>
+  <div class="form-group container">
+    <label for="diachi">Địa chỉ:</label>
+    <input type="text" class="form-control" id="diachi" name="diachi" value="<%= test.diachi  %>">
+  </div>
+  <div class="form-group container">
+    <label for="sdt">sdt:</label>
+    <input type="text" class="form-control" id="sdt" name="sdt" value="<%= test.sdt  %>">
+  </div>
+  <div class="form-group container"> Chức vụ:
+    <select class="form-control" name="chucvu">
+      <option value="Trưởng phòng" <%=test.chucvu==='Trưởng phòng' ? 'selected' : '' %>>Trưởng phòng</option>
+      <option value="Tổ trưởng" <%=test.chucvu==='Tổ trưởng' ? 'selected' : '' %>>Tổ trưởng</option>
+      <option value="Nhân viên" <%=test.chucvu==='Nhân viên' ? 'selected' : '' %>>Nhân viên</option>
+    </select>
+  </div>
+  <div class="form-group container">Phòng ban:
+    <select class="form-control" name="phongban">
+      <option value="Nhân sự" <%=test.phongban==='Nhân sự' ? 'selected' : '' %>>Nhân sự</option>
+      <option value="Sản xuất" <%=test.phongban==='Sản xuất' ? 'selected' : '' %>>Sản xuất</option>
+      <option value="Chất lượng" <%=test.phongban==='Chất lượng' ? 'selected' : '' %>>Chất lượng</option>
+    </select>
+  </div>
+  <div class="form-group container">
+    <label for="ngayvaocongty">Ngày vào:</label>
+    <input type="date" class="form-control" id="ngayvaocongty" name="ngayvaocongty" value="<%= test.ngayvaocongty  %>">
+  </div>
+  <div class="form-group container">Tình trạng:
+    <select class="form-control" name="tinhtrang">
+      <option value="Đang công tác" <%=test.tinhtrang==='Đang công tác' ? 'selected' : '' %>>Đang công tác</option>
+      <option value="Đã nghỉ" <%=test.tinhtrang==='Đã nghỉ' ? 'selected' : '' %>>Đã nghỉ</option>
+    </select>
+  </div>
+  <div class="form-group container">
+    <label for="hinhanh">Hình ảnh</label>
+    <img src="/images/<%= test.hinhanh %>" alt="" width="65" height="auto" class="ml-5 mb-3" id="hinhnen">
+    <input type="file" class="form-control" id="hinhanh" name="hinhanh" style="width: 370px;">
+  </div>
+  <div class="form-group container">
+    <button type="submit" class="btn btn-primary ">Sửa</button>
+  </div>
+</form>
 
-<form  action="/update" method="POST" style="width: 450px;" >
-    <h1 class="container">Sửa thông tin cán bộ</h1>
-    <div class="form-group container" >
-      <input type="hidden" class="form-control" id="id" name = "id" value="<%= test._id  %>" >
-    </div>
-    <div class="form-group container" >
-      <label for="hoten">họ tên</label>
-      <input type="text" class="form-control" id="hoten" name ="hoten" value="<%= test.hoten  %>">
-    </div>
-    <div class="form-group container">
-      <label for="tuoi">tuổi</label>
-      <input type="number" class="form-control" id="tuoi" name ="tuoi" value="<%= test.tuoi  %>">
-    </div>
-    <div class="form-group container">
-      <label for="gioitinh">giới tính</label>
-      <input type="text" class="form-control" id="gioitinh" name ="gioitinh" value="<%= test.gioitinh  %>">
-    </div>
-    <div class="form-group container">
-      <label for="diachi">địa chỉ</label>
-      <input type="text" class="form-control" id="diachi" name ="diachi" value="<%= test.diachi  %>">
-    </div>
-    <!-- <div class="form-group container">
-      <label  for="hinhanh">Hình ảnh</label>
-      <img src="./images/<%= test.hinhanh %>" alt="" width="65" height="auto" class="ml-5 mb-3" id ="hinhnen">
-      <input type="file" class="form-control" id="hinhanh" name = "hinhanh" style="width: 370px;" >
-    </div> -->
-    <div class="form-group container">
-        <button type="submit" class="btn btn-primary ">Sửa</button>
-    </div>
 
-  </form> 
-
-
-  <!-- <script>
-    hinhanh.onchange =event => {
-      const [file] = hinhanh.files;
-      if(file) { 
-        hinhnen.src = URL.createObjectURL(file)
-      }
+<!-- img preview -->
+<script>
+  hinhanh.onchange = event => {
+    const [file] = hinhanh.files;
+    if (file) {
+      hinhnen.src = URL.createObjectURL(file)
     }
-    </script> -->
+  }
+</script>

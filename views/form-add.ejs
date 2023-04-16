@@ -1,53 +1,61 @@
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="/">Trang chủ</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a  class="nav-link" href="./form-add">Thêm</a>
-      </li>
-      <li class="nav-item">
-        <a  class="nav-link" href="./search">Tìm kiếm</a>
-      </li>
-    </ul> 
-
-
-</nav>
+<%- include('partials/header.ejs') %>
 
 <form  action="./add" method="POST" style="width: 400px;" enctype="multipart/form-data">
     <h1 class="container">Thêm cán bộ</h1>
     <div class="form-group container" >
-      <label for="hoten">họ tên</label>
+      <label for="hoten">họ tên:</label>
       <input type="text" class="form-control" id="hoten" name = "hoten">
     </div>
     <div class="form-group container">
-      <label for="tuoi">tuổi</label>
-      <input type="number" class="form-control" id="tuoi" name = "tuoi">
+      <label for="ngayvaocongty">Ngày sinh:</label>
+      <input type="date" class="form-control" id="ngaysinh" name = "ngaysinh" >
+    </div>
+    <div class="form-group container" name="gioitinh">Giới tính :  
+      <label class="radio-inline mr-4 ml-4"><input type="radio"  name="gioitinh" value="Nam" >Nam</label>
+      <label class="radio-inline "><input type="radio"  name="gioitinh" value="Nữ">Nữ</label>
     </div>
     <div class="form-group container">
-      <label for="gioitinh">giới tính</label>
-      <input type="text" class="form-control" id="gioitinh" name = "gioitinh">
-    </div>
-    <div class="form-group container">
-      <label for="diachi">địa chỉ</label>
+      <label for="diachi">địa chỉ:</label>
       <input type="text" class="form-control" id="diachi" name = "diachi">
     </div>
     <div class="form-group container">
-      <label  for="hinhanh">Hình ảnh</label>
-      <img src="./images/hinhnen.jpg" alt="" width="65" height="auto" class="ml-5 mb-3" id ="hinhnen">
+      <label for="sdt">sdt:</label>
+      <input type="text" class="form-control" id="sdt" name = "sdt">
+    </div>
+    <div class="form-group container">Chức vụ:
+      <select class="form-control" name="chucvu">
+        <option value="Trưởng phòng">Trưởng phòng</option>
+        <option value="Tổ trưởng">Tổ trưởng</option>
+        <option value="Nhân viên">Nhân viên</option>
+    </select>
+    </div>
+    <div class="form-group container">Phòngban:
+      <select class="form-control" name="phongban">
+        <option value="Nhân sự">Nhân sự</option>
+        <option value="Sản xuất">Sản xuất</option>
+        <option value="Chất lượng">Chất lượng</option>
+    </select>
+    </div>
+    <div class="form-group container">
+      <label for="ngayvaocongty">Ngày vào công ty:</label>
+      <input type="date" class="form-control" id="ngayvaocongty" name = "ngayvaocongty" >
+    </div>
+    <div class="form-group container">Tình trạng:
+      <select class="form-control" name="tinhtrang">
+        <option value="Đang công tác">Đang công tác</option>
+        <option value="Đã nghỉ">Đã nghỉ</option>
+    </select>
+    </div>
+    <div class="form-group container">
+      <label  for="hinhanh">Hình ảnh:</label>
+      <img src="/images/hinhnen.jpg" alt="" width="65" height="auto" class="ml-5 mb-3" id ="hinhnen">
       <input type="file" class="form-control" id="hinhanh" name = "hinhanh" style="width: 370px;" >
     </div>
     <div class="form-group container">
         <button type="submit" class="btn btn-primary ">Thêm cán bộ</button>
     </div>
 
-  </form>
-
+</form>
 
 
 <!-- preview img upload file JS -->

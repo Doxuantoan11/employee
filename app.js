@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var methodOverride = require('method-override')
+var moment = require('moment');
 
 var app = express();
 app.use(methodOverride('_method'))

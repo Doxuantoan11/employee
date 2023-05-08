@@ -1,13 +1,13 @@
 <%- include('partials/header.ejs') %>
 
-<form  action="./add" method="POST" style="width: 400px;" enctype="multipart/form-data">
+<form  action="/add" method="POST" style="width: 400px;" enctype="multipart/form-data">
     <h1 class="container">Thêm cán bộ</h1>
     <div class="form-group container" >
       <label for="hoten">họ tên:</label>
       <input type="text" class="form-control" id="hoten" name = "hoten">
     </div>
     <div class="form-group container">
-      <label for="ngayvaocongty">Ngày sinh:</label>
+      <label for="ngaysinh">Ngày sinh:</label>
       <input type="date" class="form-control" id="ngaysinh" name = "ngaysinh" >
     </div>
     <div class="form-group container" name="gioitinh">Giới tính :  

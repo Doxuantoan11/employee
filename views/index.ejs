@@ -29,17 +29,20 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
     <div class="login float-left">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item nav-hover">
-              <a class="nav-link text-white " href="#"><%=user_info.username%> |</a>
+              <a class="nav-link text-white " href="#"><%=user.username%> |</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-white" href="/login">logout</a>
+              <a class="nav-link text-white" href="/logout">logout</a>
             </li>
           </ul>
     </div>  
 </nav>
   
     <h1> Danh sách cán bộ</h1>
-    <% if(user_info.roleID===1) { %>
+    <% if(user.roleID!==2) {%>
+      <div> Chỉ có Manager có quyền truy cập trang này click <a class="nav-link text-black" href="/logout">login</a> để về trang login </div>
+    <%}%>
+    <% if(user.roleID===2) { %>
       <section class="table-wapper">
         <table class=" table mt-4 ">
           <tr>

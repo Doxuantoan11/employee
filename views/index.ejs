@@ -39,10 +39,10 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
 </nav>
   
     <h1> Danh sách cán bộ</h1>
-    <% if(user.roleID!==2) {%>
-      <div> Chỉ có Manager có quyền truy cập trang này click <a class="nav-link text-black" href="/logout">login</a> để về trang login </div>
+    <% if(user.roleName!=='manager') {%>
+      <div class="inline"> Chỉ có Manager có quyền truy cập trang này click <a class="nav-link text-black" href="/logout">login</a> để về trang login </div>
     <%}%>
-    <% if(user.roleID===2) { %>
+    <% if(user.roleName==='manager') { %>
       <section class="table-wapper">
         <table class=" table mt-4 ">
           <tr>

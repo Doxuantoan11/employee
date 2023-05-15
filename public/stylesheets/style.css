@@ -51,3 +51,11 @@ a {
 .nav-hover:hover{
  color: #000;
 }
+.inline {
+  display: flex;
+  width: 100%;
+}
+.inline a {
+  margin-top: -13px;
+  font-size:20px;
+}

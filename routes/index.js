@@ -71,23 +71,13 @@ var userSchema =new mongoose.Schema({
   password: {
     type: String,
   },
-  roleID: {
-    type: Number,
+  roleName: {
+    type: String,
   },
 });
 
 var user = mongoose.model('users', userSchema);
 
-var roleSchema =new mongoose.Schema({
-  roldID: {
-    type: Number,
-  },
-  name: {
-    type: String,
-  },
-});
-
-var role = mongoose.model('roles', roleSchema);
 
 var user_info ="";
 router.use(session({
@@ -131,16 +121,33 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 // Configure session middleware
+var currentUser ="";
+router.get('/user', function(req, res) {
+  if (req.isAuthenticated() && req.user.roleName ==='admin') {
+    user.find({}, (error, data) => {
+      console.log('userS : ', data)
+      res.render('user', { users: data});
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
 
 router.get('/', function(req, res) {
-  test.find({}, (error, data) => {
-    if (req.isAuthenticated()) {
-      res.render('index', { test:data, user: req.user });
-    } else {
-      res.redirect('/login');
-    }
-  });
+  if (req.isAuthenticated() && req.user.roleName === 'admin') {
+      res.redirect('user');
+
+  } else if (req.isAuthenticated() && req.user.roleName === 'manager') {
+    test.find({}, (error, data) => {
+      res.render('index', { test: data, user: req.user });
+    });
+  } else if (req.isAuthenticated() && req.user.roleName === 'user') {
+      res.redirect('employee-info');
+  } else {
+    res.redirect('/login');
+  }
 });
+
 //form-login
 router.get('/login', function(req, res) {
   res.render('login', {});
@@ -255,13 +262,22 @@ router.get('/signup', function(req, res) {
 });
 // gui du lieu form dang ky vao database va quay lai trang login
 router.post('/signup', function(req, res) {
-  user.create(req.body);
+  const newuser = new user({
+    ...req.body,
+    roleName: 'user'
+  });
+  newuser.save();
   res.redirect('/login');
 });
 
 //form-add
 router.get('/form-add', function(req, res) {
-  res.render('form-add', {});
+  if (req.isAuthenticated() && req.user.roleName ==='manager') {
+    console.log(' user roleName is :',req.user.roleName )
+    res.render('form-add');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 //validator img file and name img
@@ -326,7 +342,6 @@ router.post('/update',upload.single('hinhanh'), function(req, res, next) {
 
 
 
-
 //xoá
 router.get('/form-delete/:id', function(req, res) {
   test.findByIdAndDelete(req.params.id, function(err, data) {
@@ -339,39 +354,74 @@ router.get('/form-delete/:id', function(req, res) {
 //tim kiem
 router.get('/search', function(req, res) {
   test.find({}, (error, data) => {
-    if (req.isAuthenticated()) {
-      res.render('index', { test:data, user: req.user });
+    if (req.isAuthenticated() && req.user.roleName ==='manager') {
+      res.render('search', { test:data, user: req.user });
     } else {
-      res.send(' you have to be Manger to access this page lick here to login page');
+      res.redirect('/login');
     }
   });
 });
 
+router.post('/search', function(req, res) {
+  if(req.body.searchText) {
+    var regex = new RegExp(req.body.searchText, 'i');
+    var query = { 
+      $or: [
+            { hoten: regex },
+            { ngaysinh: regex } ,
+            { gioitinh: regex } ,
+            { diachi: regex } ,
+            { sdt: regex } ,
+            { chucvu: regex } ,
+            { phongban: regex } ,
+            { ngayvaocongty: regex } ,
+            { tinhtrang: regex } ,
+           ] };
+           test.find(query).limit(10).exec(function(err, data) {
+            if(err) {
+              console.log(err);
+            } else {
+              console.log('data o nodejs: ',data);
+              res.render('search',{ test:data,user: req.user});
+            }
+          });
+  }
+});
 
+// user 
 
-router.post('/search/name', function(req, res, next) {
-  var name = req.body.hoten;
-  test.find({"hoten": {$regex: name, $options: 'i'}}, function(err, data) {
-    if(data){
-      res.render('search', { test:data });
-    }
-    else{
-      res.send("Không tìm thấy cán bộ")
-    }
+// router.get('/user', function(req, res) {
+//   if (req.isAuthenticated() && req.user.roleName ==='admin') {
+//     user.find({}, (error, data) => {
+//       console.log('userS : ', data)
+//       res.render('user', { users: data});
+//     });
+//   } else {
+//     res.redirect('/login');
+//   }
+// });
+
+// 
+router.get('/user-update/:id',  function(req, res) {
+  user.findById(req.params.id, function(err, data) {
+    res.render('user-update', {userCurrent:data});
+  })
+});
+router.post('/user-update', function(req, res, next) {
+  user.findByIdAndUpdate({_id: req.body.id},req.body, function(err, data) {
+    res.redirect('/user');
   });
 });
 
+//xoa user 
+router.get('/user-delete/:id', function(req, res) {
+  user.findByIdAndDelete(req.params.id, function(err, data) {
+    res.redirect('/user');
+  })
+});
 
-router.post('/search/sdt', function(req, res, next) {
-  var sdt = req.body.sdt;
-  test.find({"sdt": {$regex: sdt, $options: 'i'}}, function(err, data) {
-    if(data){
-      res.render('search', { test:data });
-    }
-    else{
-      res.send("Không tìm thấy cán bộ")
-    }
-  });
+router.get('/employee-info', function(req, res) {
+  res.render('employee-info');
 });
 
 module.exports = router;

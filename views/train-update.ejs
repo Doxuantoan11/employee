@@ -1,0 +1,49 @@
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<link rel='stylesheet' href='/stylesheets/style.css' />
+
+<form action="/train-update" method="POST" style="width: 450px;" id="myForm">
+    <h1 class="container">Sửa thông tin đào tạo</h1>
+    <div class="form-group container">
+      <input type="hidden" class="form-control" id="id" name="id" value="<%= trainCurrent._id  %>">
+    </div>
+    <div class="form-group container">
+      <label for="ten">Tên:</label>
+      <input type="text" class="form-control" id="ten" name="ten" value="<%= trainCurrent.name  %>" >
+    </div>
+    <div class="form-group container">
+        <label for="thoigianbatdau">Thời gian bắt đầu:</label>
+        <input type="date" class="form-control" id="thoigianbatdau" name="thoigianbatdau" value="<%= trainCurrent.startTime%>" min='2023-01-01' max='2030-01-01'>
+    </div>
+    <div class="form-group container">
+        <label for="thoigianketthuc">Thời gian kết thúc:</label>
+        <input type="date" class="form-control" id="thoigianketthuc" name="thoigianketthuc" value="<%= trainCurrent.endTime %>" min='2023-01-01' max='2030-01-01' >
+    </div>
+    <div class="form-group container mt-2 mr-4">
+      <button type="submit" class="btn btn-primary ">Sửa</button>
+    </div>
+  </form>
+  
+  <script>
+    document.getElementById('myForm').addEventListener('submit', function(event) {
+      var startTime = new Date(document.getElementById('thoigianbatdau').value);
+      var endTime = new Date(document.getElementById('thoigianketthuc').value);
+    
+      if (endTime <= startTime) {
+        alert(`Thời gian kết thúc phải lớn hơn ${startTime.toLocaleDateString()}`);
+        event.preventDefault();
+      }
+    });
+</script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+  crossorigin="anonymous"></script>
+  

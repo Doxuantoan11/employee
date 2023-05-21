@@ -16,7 +16,7 @@ const flash = require('connect-flash');
 const secret = "ct24";
 router.use(flash());
 
-mongoose.connect('mongodb://127.0.0.1:27017/canbo', {useNewUrlParser: true, useNewUrlParser: true,  useUnifiedTopology: true});
+mongoose.connect('mongodb://127.0.0.1:27017/employees', {useNewUrlParser: true,  useUnifiedTopology: true,useCreateIndex: true});
 var db = mongoose.connection;
 //Bắt sự kiện error
 db.on('error', function(err) {
@@ -29,44 +29,54 @@ db.once('open', function() {
 
 
 //SCHEMA
-var canboSchema =new mongoose.Schema({
-  hoten: {
+var employeeSchema =new mongoose.Schema({
+  email: {
     type: String,
   },
-  ngaysinh: {
+  name: {
     type: String,
   },
-  gioitinh: {
+  birthDay: {
     type: String,
   },
-  diachi: {
+  sex: {
     type: String,
   },
-  sdt: {
+  address: {
    type: String,
   },
-  chucvu: {
+  phone: {
+   type: String,
+  },
+  positionName: {
     type: String,
   },
-  phongban: {
+  departmentName: {
     type: String,
   },
-  ngayvaocongty: {
+  applyDay: {
     type: String,
   },
-  hinhanh: {
+  status: {
     type: String,
   },
-  tinhtrang: {
+  avatar: {
+    type: String,
+  },
+  managerEmail: {
+    type: String,
+  },
+  trainName: {
     type: String,
   }
-});
+}, { timestamps: true });
 
-var test = mongoose.model('tests', canboSchema);
-
+var employee = mongoose.model('employees', employeeSchema);
+// users
 var userSchema =new mongoose.Schema({
-  username: {
+  email: {
     type: String,
+    unique: true
   },
   password: {
     type: String,
@@ -75,11 +85,42 @@ var userSchema =new mongoose.Schema({
     type: String,
   },
 });
-
 var user = mongoose.model('users', userSchema);
 
+// position
+var positionSchema =new mongoose.Schema({
+  name: {
+    type: String,
+  },
+  salary: {
+    type: String,
+  },
+});
+var position = mongoose.model('positions', positionSchema);
 
-var user_info ="";
+// train
+var trainSchema =new mongoose.Schema({
+  name: {
+    type: String,
+  },
+  startTime: {
+    type: String,
+  },
+  endTime: {
+    type: String,
+  },
+});
+var train = mongoose.model('trains', trainSchema);
+
+// department
+var departmentSchema =new mongoose.Schema({
+  name: {
+    type: String,
+  }
+});
+var department = mongoose.model('departments', departmentSchema);
+
+var user_name ="";
 router.use(session({
   secret: 'secret',
   resave: false,
@@ -90,17 +131,17 @@ router.use(passport.initialize());
 router.use(passport.session());
 
 passport.use(new LocalStrategy({
-  usernameField: 'username'
-}, async (username, password, done) => {
+  usernameField: 'email' 
+}, async (email, password, done) => { 
   try {
-    const myUser  = await user.findOne({ username });
-    user_info = username;
-    if (!myUser ) {
-      return done(null, false, { message: 'Incorrect username or password.' });
+    const myUser  = await user.findOne({ email }); 
+    user_info = email; 
+    if (!myUser ) {    
+      return done(null, false, { message: 'Incorrect email .' }); 
     }
     const isMatch = password === myUser.password;
     if (!isMatch) {
-      return done(null, false, { message: 'Incorrect username or password.' });
+      return done(null, false, { message: 'Incorrect  password.' }); 
     }
     return done(null, myUser );
   } catch (err) {
@@ -125,8 +166,7 @@ var currentUser ="";
 router.get('/user', function(req, res) {
   if (req.isAuthenticated() && req.user.roleName ==='admin') {
     user.find({}, (error, data) => {
-      console.log('userS : ', data)
-      res.render('user', { users: data});
+      res.render('user', { users: data, currentUser: req.user.email });
     });
   } else {
     res.redirect('/login');
@@ -138,8 +178,8 @@ router.get('/', function(req, res) {
       res.redirect('user');
 
   } else if (req.isAuthenticated() && req.user.roleName === 'manager') {
-    test.find({}, (error, data) => {
-      res.render('index', { test: data, user: req.user });
+    employee.find({}, (error, data) => {
+      res.render('index', { employee: data, user: req.user });
     });
   } else if (req.isAuthenticated() && req.user.roleName === 'user') {
       res.redirect('employee-info');
@@ -148,16 +188,20 @@ router.get('/', function(req, res) {
   }
 });
 
-//form-login
-router.get('/login', function(req, res) {
-  res.render('login', {});
-});
+
 router.post('/login', passport.authenticate('local', {
-  failureFlash: 'Incorrect username or password.',
+  failureFlash: 'Incorrect email or password.',
   failureRedirect: '/login'
 }), (req, res) => {
   res.redirect('/');
 });
+//form-login
+router.get('/login', function(req, res) {
+  let errorMessage = req.flash('error');
+  let successSignup = req.flash('success');
+  res.render('login',{message: errorMessage , success:successSignup});
+});
+
 
 router.get('/logout', (req, res) => {
   req.logout((err) => {
@@ -168,113 +212,47 @@ router.get('/logout', (req, res) => {
   });
 });
 
-// router.post('/login', async (req, res) => {
-//   try {
-//     user_info = req.body.username;
-//     console.log(user_info);
-//     const { username, password } = req.body;
-//     const user = await user.findOne({ username });
-//     if (!user) {
-//       return res.status(400).json({ message: 'User not found' });
-//     }
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(400).json({ message: 'Invalid credentials' });
-//     }
-//     const token = jwt.sign({ id: user._id }, secret);
-//     res.json({ token });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// });
-
-
-// router.post('/signup', async (req, res) => {
-//   try {
-//     const { username, password } = req.body;
-//     let user = await user.findOne({ username });
-//     if (user) {
-//       return res.status(400).json({ message: 'User already exists' });
-//     }
-//     user = new user({
-//       username,
-//       password
-//     });
-//     // const salt = await bcrypt.genSalt(10);
-//     // user.password = await bcrypt.hash(password, salt);
-//     await user.save();
-//     const token = jwt.sign({ id: user._id }, secret);
-//     res.json({ token });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// });
-
-
-// kiem tra login
-
-// router.post('/login', async(req, res)=> {
-//   try {
-//     const check = await user.findOne({username: req.body.username})
-//     if(check.password === req.body.password){
-//       user_info = check;
-//       const token = jwt.sign({ _id: user._id }, secret);
-//       res.cookie('token', token, { httpOnly: true, path: '/' });
-//       res.redirect('/')
-//       }
-//       else {
-//         res.send("wrong password")
-//       }
-//     }
-//     catch {
-//       res.send("wrong details")
-//     }
-// });
-
-// router.post('/logout', (req, res) => {
-//   res.clearCookie('token');
-//   console.log('Logout successful');
-//   res.json({ message: 'Logout successful' });
-// });
-// router.get('/logout', (req, res) => {
-//   res.clearCookie('token', { domain: 'http://localhost:3001/', path: '/login' });
-//   if (req.cookies.token) {
-//     console.log('yes cookies token is exist');
-//   } else {
-//     console.log('no cookies token is  not exist');
-//   }
-//   // console.log('Logout successful');
-//   // res.json({ message: 'Logout successful' });
-//   res.redirect('/login');
-// });
 
 /* GET home page. */
 
 //form-sign  giao dien trang dang ky
-// router.get('/signup', function(req, res) {
-//   res.render('signup', {});
-// });
 
 router.get('/signup', function(req, res) {
-  res.render('signup', {});
+  let errormessage =req.flash('error');
+  res.render('signup', {message:errormessage});
 });
-// gui du lieu form dang ky vao database va quay lai trang login
-router.post('/signup', function(req, res) {
-  const newuser = new user({
-    ...req.body,
-    roleName: 'user'
-  });
-  newuser.save();
-  res.redirect('/login');
+
+router.post('/signup', async function(req, res) {
+  try {
+    // Check if email already exists
+    const existingUser = await user.findOne({ email: req.body.email });
+    let errormessage = 'Email already exists';
+    let successsignup = 'signup successful';
+    if (existingUser) {
+      errormessage= 'Email already exists';
+      req.flash('error', errormessage);
+      return res.redirect('/signup');
+    }
+
+    // Email doesn't exist, create a new user
+    const newuser = new user({
+      ...req.body,
+      roleName: 'user'
+    });
+    await newuser.save();
+    req.flash('success', successsignup);
+    res.redirect('/login');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
 });
 
 //form-add
 router.get('/form-add', function(req, res) {
   if (req.isAuthenticated() && req.user.roleName ==='manager') {
     console.log(' user roleName is :',req.user.roleName )
-    res.render('form-add');
+    res.render('form-add',{user:req.user});
   } else {
     res.redirect('/login');
   }
@@ -305,27 +283,29 @@ router.post('/add',upload.single('hinhanh'), function(req, res,next) {
   const file = req.file;
   const applyDate = moment(req.body.ngayvaocongty).format('YYYY-MM-DD');
   const birthDate = moment(req.body.ngaysinh).format('YYYY-MM-DD');
-  // var date = new Date(req.body.ngayvaocongty).toUTCString();
-  // date = date.split(' ').slice(0,4).join(' ');
+  console.log(req.body);
   if(!file) {return next}
-  test.create({ 
-    hoten: req.body.hoten,
-    ngaysinh: birthDate,
-    gioitinh: req.body.gioitinh,
-    diachi: req.body.diachi,
-    sdt: req.body.sdt,
-    chucvu: req.body.chucvu,
-    phongban: req.body.phongban,
-    ngayvaocongty: applyDate,
-    tinhtrang: req.body.tinhtrang,
-    hinhanh: urlImage,
+  employee.create({ 
+    name: req.body.hoten,
+    birthDay: birthDate,
+    sex: req.body.gioitinh,
+    address: req.body.diachi,
+    phone: req.body.sdt,
+    positionName: req.body.chucvu,
+    departmentName: req.body.phongban,
+    applyDay: applyDate,
+    email: req.body.email,
+    managerEmail: req.body.quanly,
+    trainName: req.body.daotao,
+    status: req.body.tinhtrang,
+    avatar: urlImage,
  });
   res.redirect('/');
 });
 
 //form update
 router.get('/form-update/:id', upload.single('hinhanh'),  function(req, res) {
-  test.findById(req.params.id, function(err, data) {
+  employee.findById(req.params.id, function(err, data) {
     res.render('form-update', {test:data});
   })
 });
@@ -335,7 +315,7 @@ router.post('/update',upload.single('hinhanh'), function(req, res, next) {
   const updateData = Object.assign({}, req.body);
   updateData.hinhanh = urlImage;
 
-  test.findByIdAndUpdate({_id: req.body.id}, updateData, {new:true}, function(err, data) {
+  employee.findByIdAndUpdate({_id: req.body.id}, updateData, {new:true}, function(err, data) {
     res.redirect('/');
   });
 });
@@ -344,7 +324,7 @@ router.post('/update',upload.single('hinhanh'), function(req, res, next) {
 
 //xoá
 router.get('/form-delete/:id', function(req, res) {
-  test.findByIdAndDelete(req.params.id, function(err, data) {
+  employee.findByIdAndDelete(req.params.id, function(err, data) {
     res.redirect('/');
   })
 });
@@ -353,7 +333,7 @@ router.get('/form-delete/:id', function(req, res) {
 
 //tim kiem
 router.get('/search', function(req, res) {
-  test.find({}, (error, data) => {
+  employee.find({}, (error, data) => {
     if (req.isAuthenticated() && req.user.roleName ==='manager') {
       res.render('search', { test:data, user: req.user });
     } else {
@@ -377,7 +357,7 @@ router.post('/search', function(req, res) {
             { ngayvaocongty: regex } ,
             { tinhtrang: regex } ,
            ] };
-           test.find(query).limit(10).exec(function(err, data) {
+           employee.find(query).limit(10).exec(function(err, data) {
             if(err) {
               console.log(err);
             } else {
@@ -388,18 +368,6 @@ router.post('/search', function(req, res) {
   }
 });
 
-// user 
-
-// router.get('/user', function(req, res) {
-//   if (req.isAuthenticated() && req.user.roleName ==='admin') {
-//     user.find({}, (error, data) => {
-//       console.log('userS : ', data)
-//       res.render('user', { users: data});
-//     });
-//   } else {
-//     res.redirect('/login');
-//   }
-// });
 
 // 
 router.get('/user-update/:id',  function(req, res) {
@@ -407,8 +375,13 @@ router.get('/user-update/:id',  function(req, res) {
     res.render('user-update', {userCurrent:data});
   })
 });
+
 router.post('/user-update', function(req, res, next) {
-  user.findByIdAndUpdate({_id: req.body.id},req.body, function(err, data) {
+  let userRoleName = req.body.roleName;
+  user.findByIdAndUpdate({_id: req.body.id}, { roleName: userRoleName }, function(err, data) {
+    if (err) {
+      console.log(err);
+    }
     res.redirect('/user');
   });
 });
@@ -424,4 +397,165 @@ router.get('/employee-info', function(req, res) {
   res.render('employee-info');
 });
 
+//user search
+router.post('/user-search', function(req, res) {
+  if(req.body.userSearch) {
+    var regex = new RegExp(req.body.userSearch, 'i');
+    var query = { 
+      $or: [
+            { email: regex },
+            { roleName: regex } ,
+           ] };
+           user.find(query).limit(10).exec(function(err, data) {
+            if(err) {
+              console.log(err);
+            } else {
+              res.render('user',{ users:data});
+            }
+          });
+  }
+});
+
+// chuc vu
+router.get('/position', function(req, res) {
+  if (req.isAuthenticated() && req.user.roleName ==='admin') {
+    position.find({}, (error, data) => {
+      res.render('position', { position: data, currentUser: req.user.email });
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+// add position
+router.post('/add-position', function(req, res,next) {
+ 
+  position.create({ 
+    name: req.body.chucvu,
+    salary: req.body.luong,
+ });
+  res.redirect('/position');
+});
+
+// position update
+router.get('/position-update/:id',  function(req, res) {
+  position.findById(req.params.id, function(err, data) {
+    res.render('position-update', {positionCurrent:data});
+  })
+});
+router.post('/position-update', function(req, res, next) {
+  let name = req.body.chucvu;
+  let salary = req.body.luong;
+  console.log('luong la:', salary)
+  position.findByIdAndUpdate(
+    {_id: req.body.id}, 
+    { $set: { name: name, salary: salary } },
+    function(err, data) {
+      if (err) {
+        console.log(err);
+      }
+      res.redirect('/position');
+    }
+  );
+});
+//delete position
+router.get('/position-delete/:id', function(req, res) {
+  position.findByIdAndDelete(req.params.id, function(err, data) {
+    res.redirect('/position');
+  })
+});
+
+//train
+router.get('/train', function(req, res) {
+  if (req.isAuthenticated() && req.user.roleName ==='admin') {
+    train.find({}, (error, data) => {
+      res.render('train', { train: data, currentUser: req.user.email });
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+router.post('/add-train', function(req, res,next) {
+  train.create({ 
+    name: req.body.ten,
+    startTime: req.body.thoigianbatdau,
+    endTime: req.body.thoigianketthuc,
+ });
+  res.redirect('/train');
+});
+
+//update train
+router.get('/train-update/:id',  function(req, res) {
+  train.findById(req.params.id, function(err, data) {
+    res.render('train-update', {trainCurrent:data});
+  })
+});
+router.post('/train-update',  function(req, res) {
+  let name = req.body.ten;
+  let startTime = req.body.thoigianbatdau;
+  let endTime = req.body.thoigianketthuc;
+  train.findByIdAndUpdate(
+    {_id: req.body.id}, 
+    { $set: { name: name, startTime: startTime,endTime:endTime } },
+    function(err, data) {
+      if (err) {
+        console.log(err);
+      }
+      res.redirect('/train');
+    }
+  );
+});
+
+// delete train
+router.get('/train-delete/:id', function(req, res) {
+  train.findByIdAndDelete(req.params.id, function(err, data) {
+    res.redirect('/train');
+  })
+});
+
+// department
+router.get('/department', function(req, res) {
+  if (req.isAuthenticated() && req.user.roleName ==='admin') {
+    department.find({}, (error, data) => {
+      res.render('department', { department: data, currentUser: req.user.email });
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+// add department
+router.post('/add-department', function(req, res,next) {
+  department.create({ 
+    name: req.body.ten,
+ });
+  res.redirect('/department');
+});
+
+// update department
+router.get('/department-update/:id',  function(req, res) {
+  department.findById(req.params.id, function(err, data) {
+    res.render('department-update', {departmentCurrent:data});
+  })
+});
+router.post('/deparment-update',  function(req, res) {
+  let name = req.body.ten;
+  department.findByIdAndUpdate(
+    {_id: req.body.id}, 
+    { $set: { name: name} },
+    function(err, data) {
+      if (err) {
+        console.log(err);
+      }
+      res.redirect('/department');
+    }
+  );
+});
+
+// delete department
+router.get('/department-delete/:id', function(req, res) {
+  department.findByIdAndDelete(req.params.id, function(err, data) {
+    res.redirect('/department');
+  })
+});
 module.exports = router;

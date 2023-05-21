@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -42,16 +44,15 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
   </div>  
 </nav>
 
-
-<h1>Nhập thông tin người dùng cần tìm</h1>
-
-<form class="search " action="/user-search" method="POST" style="width: 400px;">
-  <div class="form-group container">
-    <input type="text" class="form-control" id="userSearch" name="userSearch" placeholder="Nhập thông tin cần tìm " required>
-  </div>
-  <div class="form-group container mt-4">
-    <button type="submit" class="btn btn-primary name-search-btn ">Tìm</button>
-  </div>
+<form  action="/add-department" method="POST" style="width: 400px;">
+    <h1 class="container">Thêm phòng ban</h1>
+    <div class="form-group container" >
+      <label for="ten">tên:</label>
+      <input type="text" class="form-control" id="ten" name = "ten" required>
+    </div>
+    <div class="form-group container">
+        <button type="submit" class="btn btn-primary ">Thêm phòng ban</button>
+    </div>
 </form>
 
 
@@ -59,39 +60,29 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
     <table class=" table mt-4 table-striped ">
       <tr>
         <th>STT</th>
-        <th>Người dùng</th>
-        <th>Quyền</th>
+        <th>Tên phòng ban</th>
         <th>Tuỳ Chọn</th>
       </tr>
-      <% var stt=1; users.forEach(item=> { %>
+      <% var stt=1; department.forEach(item=> { %>
               <tr class="tr-hover">
                 <td class="align-middle">
                   <%= stt++ %>
-                </td>
-               
+                </td>              
                 <td class="align-middle">
-                  <% let username = item.email.split('@')[0]; %>
-                  <%= username %>
+                    <%= item.name %>
                 </td>
                 <td class="align-middle">
-                  <%= item.roleName %>
-                </td>
-                <td class="align-middle">
-                  <a class="btn btn-primary" href="/user-update/<%= item._id %> ">Sửa</a>
-                  <a class="btn btn-danger" href="/user-delete/<%= item._id %> ">xoá</a>
+                  <a class="btn btn-primary" href="/department-update/<%= item._id %> ">Sửa</a>
+                  <a class="btn btn-danger" href="/department-delete/<%= item._id %> ">xoá</a>
                 </td>
               </tr>
         <% }); %>
     </table>
   </section>
-
-
-
+</body>
+</html>
 
   
-</body>
-
-</html>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
 integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 crossorigin="anonymous"></script>

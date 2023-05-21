@@ -59,3 +59,19 @@ a {
   margin-top: -13px;
   font-size:20px;
 }
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #333;
+  color: #fff;
+  padding: 16px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity .3s ease-in-out;
+}
+
+#toast.show {
+  opacity: 1;
+}

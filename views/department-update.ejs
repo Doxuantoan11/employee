@@ -1,24 +1,18 @@
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
 integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 <link rel='stylesheet' href='/stylesheets/style.css' />
 
-<form action="/user-update" method="POST" style="width: 450px;">
-    <h1 class="container">Sửa thông người dùng</h1>
+<form action="/deparment-update" method="POST" style="width: 450px;">
+    <h1 class="container">Sửa thông tin phòng ban</h1>
     <div class="form-group container">
-      <input type="hidden" class="form-control" id="id" name="id" value="<%= userCurrent._id  %>">
+      <input type="hidden" class="form-control" id="id" name="id" value="<%= departmentCurrent._id  %>">
     </div>
     <div class="form-group container">
-      <label for="useremail">Người dùng:</label>
-      <% let username = userCurrent.email.split('@')[0]; %>
-      <input type="text" class="form-control" id="useremail" name="useremail" value="<%= username  %>" readonly>
+      <label for="ten">Tên phòng ban:</label>
+      <input type="text" class="form-control" id="ten" name="ten" value=" <%= departmentCurrent.name  %>" >
     </div>
-    <div class="form-group container"> Quyền:
-      <select class="form-control" name="roleName">
-        <option value="admin" <%=userCurrent.roleName==='admin' ? 'selected' : '' %>>admin</option>
-        <option value="manager" <%=userCurrent.roleName==='manager' ? 'selected' : '' %>>manager</option>
-        <option value="user" <%=userCurrent.roleName==='user' ? 'selected' : '' %>>user</option>
-      </select>
     <div class="form-group container mt-2 mr-4">
       <button type="submit" class="btn btn-primary ">Sửa</button>
     </div>

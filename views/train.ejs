@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -42,16 +43,24 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
   </div>  
 </nav>
 
+<form  action="/add-train" method="POST" style="width: 400px;" id="myForm">
+    <h1 class="container">Thêm đào tạo</h1>
+    <div class="form-group container" >
+      <label for="ten">Tên:</label>
+      <input type="text" class="form-control" id="ten" name = "ten">
+    </div>
+    <div class="form-group container" >
+        <label for="thoigianbatdau">Thời gian bắt đầu:</label>
+        <input type="date" class="form-control" id="thoigianbatdau" name = "thoigianbatdau" min='2023-01-01' max='2030-01-01' required >
+      </div>
+    <div class="form-group container" >
+        <label for="thoigianketthuc">Thời gian kết thúc:</label>
+        <input type="date" class="form-control" id="thoigianketthuc" name = "thoigianketthuc" min='2023-01-01' max='2030-01-01' required >
+      </div>
+    <div class="form-group container">
+        <button type="submit" class="btn btn-primary ">Thêm đào tạo</button>
+    </div>
 
-<h1>Nhập thông tin người dùng cần tìm</h1>
-
-<form class="search " action="/user-search" method="POST" style="width: 400px;">
-  <div class="form-group container">
-    <input type="text" class="form-control" id="userSearch" name="userSearch" placeholder="Nhập thông tin cần tìm " required>
-  </div>
-  <div class="form-group container mt-4">
-    <button type="submit" class="btn btn-primary name-search-btn ">Tìm</button>
-  </div>
 </form>
 
 
@@ -59,26 +68,29 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
     <table class=" table mt-4 table-striped ">
       <tr>
         <th>STT</th>
-        <th>Người dùng</th>
-        <th>Quyền</th>
+        <th>tên</th>
+        <th>Thời gian bắt đầu</th>
+        <th>Thời gian kết thúc</th>
         <th>Tuỳ Chọn</th>
       </tr>
-      <% var stt=1; users.forEach(item=> { %>
+      <% var stt=1; train.forEach(item=> { %>
               <tr class="tr-hover">
                 <td class="align-middle">
                   <%= stt++ %>
                 </td>
                
                 <td class="align-middle">
-                  <% let username = item.email.split('@')[0]; %>
-                  <%= username %>
+                    <%= item.name %>
                 </td>
                 <td class="align-middle">
-                  <%= item.roleName %>
+                  <%= item.startTime%> 
                 </td>
                 <td class="align-middle">
-                  <a class="btn btn-primary" href="/user-update/<%= item._id %> ">Sửa</a>
-                  <a class="btn btn-danger" href="/user-delete/<%= item._id %> ">xoá</a>
+                  <%= item.endTime%>
+                </td>
+                <td class="align-middle">
+                  <a class="btn btn-primary" href="/train-update/<%= item._id %> ">Sửa</a>
+                  <a class="btn btn-danger" href="/train-delete/<%= item._id %> ">xoá</a>
                 </td>
               </tr>
         <% }); %>
@@ -92,6 +104,18 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
 </body>
 
 </html>
+
+<script>
+    document.getElementById('myForm').addEventListener('submit', function(event) {
+      var startTime = new Date(document.getElementById('thoigianbatdau').value);
+      var endTime = new Date(document.getElementById('thoigianketthuc').value);
+    
+      if (endTime <= startTime) {
+        alert(`Thời gian kết thúc phải lớn hơn ${startTime.toLocaleDateString()}`);
+        event.preventDefault();
+      }
+    });
+</script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
 integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 crossorigin="anonymous"></script>

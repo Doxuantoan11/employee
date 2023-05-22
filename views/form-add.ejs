@@ -18,6 +18,9 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
       <li class="nav-item">
         <a class="nav-link text-white" href="/search">Tìm kiếm</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link text-white" href="/train">Đào tạo</a>
+      </li>
     </ul>
   </div>
   <div class="login float-left">
@@ -54,44 +57,54 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
       <label for="sdt">sdt:</label>
       <input type="text" class="form-control" id="sdt" name = "sdt">
     </div>
-    <div class="form-group container">Chức vụ:
+    <div class="form-group container">
+     Chức vụ:
       <select class="form-control" name="chucvu">
-        <option value="Trưởng phòng">Trưởng phòng</option>
-        <option value="Tổ trưởng">Tổ trưởng</option>
-        <option value="Nhân viên">Nhân viên</option>
-    </select>
+        <% for (var i = 0; i < positionData.length; i++) { %>
+          <option value="<%= positionData[i].name %>"><%= positionData[i].name %></option>
+        <% } %>
+      </select>
     </div>
-    <div class="form-group container">Phòngban:
+    </div>
+    <div class="form-group container">
+      phòng ban:
       <select class="form-control" name="phongban">
-        <option value="Nhân sự">Nhân sự</option>
-        <option value="Sản xuất">Sản xuất</option>
-        <option value="Chất lượng">Chất lượng</option>
-    </select>
+        <% for (var i = 0; i < departmentData.length; i++) { %>
+          <option value="<%= departmentData[i].name %>"><%= departmentData[i].name %></option>
+        <% } %>
+      </select>
+    </div>
     </div>
     <div class="form-group container">
       <label for="ngayvaocongty">Ngày vào công ty:</label>
       <input type="date" class="form-control" id="ngayvaocongty" name = "ngayvaocongty" >
     </div>
-    <div class="form-group container">Email:
+    <div class="form-group container">
+      Email:
       <select class="form-control" name="email">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-    </select>
-    </div>
-    <div class="form-group container">Quản lý:
-      <select class="form-control" name="quanly">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
+        <% for (var i = 0; i < userData.length; i++) { %>
+          <option value="<%= userData[i].email %>"><%= userData[i].email %></option>
+        <% } %>
       </select>
     </div>
-    <div class="form-group container">Đào tạo:
+    </div>
+    <div class="form-group container">
+      Quản lý:
+      <select class="form-control" name="quanly">
+        <% for (var i = 0; i < userData.length; i++) {
+          if (userData[i].roleName === 'manager') { %>
+            <option value="<%= userData[i].email %>"><%= userData[i].email %></option>
+          <% }
+        } %>
+      </select>
+    </div>
+    <div class="form-group container">
+      Đào tạo:
       <select class="form-control" name="daotao">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-       </select>
+        <% for (var i = 0; i < trainData.length; i++) { %>
+          <option value="<%= trainData[i].name %>"><%= trainData[i].name %></option>
+        <% } %>
+      </select>
     </div>
     <div class="form-group container">Tình trạng:
       <select class="form-control" name="tinhtrang">
@@ -111,7 +124,7 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
 </form>
 
 
-<!-- preview img upload file JS -->
+
 <script>
 hinhanh.onchange =event => {
   const [file] = hinhanh.files;

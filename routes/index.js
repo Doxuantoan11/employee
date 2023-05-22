@@ -16,7 +16,7 @@ const flash = require('connect-flash');
 const secret = "ct24";
 router.use(flash());
 
-mongoose.connect('mongodb://127.0.0.1:27017/employees', {useNewUrlParser: true,  useUnifiedTopology: true,useCreateIndex: true});
+mongoose.connect('mongodb://127.0.0.1:27017/employees', {useNewUrlParser: true,  useUnifiedTopology: true,useCreateIndex: true,useFindAndModify: false });
 var db = mongoose.connection;
 //Bắt sự kiện error
 db.on('error', function(err) {
@@ -120,6 +120,57 @@ var departmentSchema =new mongoose.Schema({
 });
 var department = mongoose.model('departments', departmentSchema);
 
+// using merge to merge collection
+var merge = "employees_with_details";
+employee.aggregate([
+   {
+      $lookup:
+         {
+           from: "users",
+           localField: "email",
+           foreignField: "email",
+           as: "userdetails"
+         }
+   },
+   {
+      $lookup:
+         {
+           from: "positions",
+           localField: "positionName",
+           foreignField: "name",
+           as: "positiondetails"
+         }
+   },
+   {
+      $lookup:
+         {
+           from: "trains",
+           localField: "trainName",
+           foreignField: "name",
+           as: "traindetails"
+         }
+   },
+   {
+      $lookup:
+         {
+           from: "departments",
+           localField: "departmentName",
+           foreignField: "name",
+           as: "departmentdetails"
+         }
+   },
+   {
+      $merge:
+         {
+           into: merge,
+           on: "_id",
+           whenMatched: "replace",
+           whenNotMatched: "insert"
+         }
+   }
+])
+
+
 var user_name ="";
 router.use(session({
   secret: 'secret',
@@ -182,7 +233,86 @@ router.get('/', function(req, res) {
       res.render('index', { employee: data, user: req.user });
     });
   } else if (req.isAuthenticated() && req.user.roleName === 'user') {
-      res.redirect('employee-info');
+    employee.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'email',
+          foreignField: 'email',
+          as: 'user'
+        }
+      },
+      {
+        $lookup: {
+          from: 'positions',
+          localField: 'positionName',
+          foreignField: 'name',
+          as: 'position'
+        }
+      },
+      {
+        $lookup: {
+          from: 'trains',
+          localField: 'trainName',
+          foreignField: 'name',
+          as: 'train'
+        }
+      },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'departmentName',
+          foreignField: 'name',
+          as: 'department'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $unwind: '$position'
+      },
+      {
+        $unwind: '$train'
+      },
+      {
+        $unwind: '$department'
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          birthDay: 1,
+          sex: 1,
+          address: 1,
+          phone: 1,
+          status: 1,
+          avatar: 1,
+          managerEmail:1,
+          applyDay:1,
+          email: '$user.email',
+          positionName: '$position.name',
+          salary: '$position.salary',
+          trainName: '$train.name',
+          startTime: '$train.startTime',
+          endTime: '$train.endTime',
+          departmentName: '$department.name'
+        }
+      }
+    ]).exec(function(err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        var filteredResult = result.filter(function(item) {
+            return item.email === req.user.email;
+        });
+        if (filteredResult.length === 0) {
+          res.send('User is not used');
+      } else {
+          res.render('employee-info', { user :filteredResult });
+      }
+      }
+    });
   } else {
     res.redirect('/login');
   }
@@ -251,8 +381,29 @@ router.post('/signup', async function(req, res) {
 //form-add
 router.get('/form-add', function(req, res) {
   if (req.isAuthenticated() && req.user.roleName ==='manager') {
-    console.log(' user roleName is :',req.user.roleName )
-    res.render('form-add',{user:req.user});
+    user.find({}, function(err, userData) {
+      if (err) throw err;
+
+      position.find({}, function(err, positionData) {
+        if (err) throw err;
+
+        train.find({}, function(err, trainData) {
+          if (err) throw err;
+
+          department.find({}, function(err, departmentData) {
+            if (err) throw err;
+            console.log('thong tin chuc vu:', positionData)
+            res.render('form-add', {
+              user: req.user,
+              userData: userData,
+              positionData: positionData,
+              trainData: trainData,
+              departmentData: departmentData
+            });
+          });
+        });
+      });
+    });
   } else {
     res.redirect('/login');
   }
@@ -306,20 +457,90 @@ router.post('/add',upload.single('hinhanh'), function(req, res,next) {
 //form update
 router.get('/form-update/:id', upload.single('hinhanh'),  function(req, res) {
   employee.findById(req.params.id, function(err, data) {
-    res.render('form-update', {test:data});
+    user.find({}, function(err, userData) {
+      if (err) throw err;
+
+      position.find({}, function(err, positionData) {
+        if (err) throw err;
+
+        train.find({}, function(err, trainData) {
+          if (err) throw err;
+
+          department.find({}, function(err, departmentData) {
+            if (err) throw err;
+            res.render('form-update', {
+              employee:data,
+              user: req.user,
+              userData: userData,
+              positionData: positionData,
+              trainData: trainData,
+              departmentData: departmentData
+            });
+          });
+        });
+      });
+    });
+    // res.render('form-update', {employee:data});
   })
 });
 
 //sửa 
-router.post('/update',upload.single('hinhanh'), function(req, res, next) {
-  const updateData = Object.assign({}, req.body);
-  updateData.hinhanh = urlImage;
-
-  employee.findByIdAndUpdate({_id: req.body.id}, updateData, {new:true}, function(err, data) {
-    res.redirect('/');
-  });
+router.post('/update', upload.single('hinhanh'), function(req, res, next) {
+  const applyDate = moment(req.body.ngayvaocongty).format('YYYY-MM-DD');
+  const birthDate = moment(req.body.ngaysinh).format('YYYY-MM-DD');
+  if (!req.file) {
+    employee.findByIdAndUpdate(
+      { _id: req.body.id },
+      { name: req.body.hoten,
+        birthDay: birthDate,
+        sex: req.body.gioitinh,
+        address: req.body.diachi,
+        phone: req.body.sdt,
+        positionName: req.body.chucvu,
+        departmentName: req.body.phongban,
+        applyDay: applyDate,
+        email: req.body.email,
+        managerEmail: req.body.quanly,
+        trainName: req.body.daotao,
+        status: req.body.tinhtrang,},
+      { new: true, upsert: true },
+      function(err, data) {
+        res.redirect('/');
+      }
+    );
+  } 
+  else {
+    let avatar = urlImage;
+    employee.findByIdAndUpdate(
+      { _id: req.body.id },
+      { name: req.body.hoten,
+        birthDay: birthDate,
+        sex: req.body.gioitinh,
+        address: req.body.diachi,
+        phone: req.body.sdt,
+        positionName: req.body.chucvu,
+        departmentName: req.body.phongban,
+        applyDay: applyDate,
+        email: req.body.email,
+        managerEmail: req.body.quanly,
+        trainName: req.body.daotao,
+        status: req.body.tinhtrang,
+        avatar: avatar, },
+      { new: true, upsert: true },
+      function(err, data) {
+        res.redirect('/');
+      }
+    );
+  }
 });
+// router.post('/update',upload.single('hinhanh'), function(req, res, next) {
+//   const updateData = Object.assign({}, req.body);
+//   updateData.avatar = urlImage;
 
+//   employee.findByIdAndUpdate({_id: req.body.id}, updateData, {new:true}, function(err, data) {
+//     res.redirect('/');
+//   });
+// });
 
 
 //xoá
@@ -330,43 +551,223 @@ router.get('/form-delete/:id', function(req, res) {
 });
 
 
-
 //tim kiem
 router.get('/search', function(req, res) {
-  employee.find({}, (error, data) => {
-    if (req.isAuthenticated() && req.user.roleName ==='manager') {
-      res.render('search', { test:data, user: req.user });
+  employee.aggregate([
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'email',
+        foreignField: 'email',
+        as: 'user'
+      }
+    },
+    {
+      $lookup: {
+        from: 'positions',
+        localField: 'positionName',
+        foreignField: 'name',
+        as: 'position'
+      }
+    },
+    {
+      $lookup: {
+        from: 'trains',
+        localField: 'trainName',
+        foreignField: 'name',
+        as: 'train'
+      }
+    },
+    {
+      $lookup: {
+        from: 'departments',
+        localField: 'departmentName',
+        foreignField: 'name',
+        as: 'department'
+      }
+    },
+    {
+      $unwind: '$user'
+    },
+    {
+      $unwind: '$position'
+    },
+    {
+      $unwind: '$train'
+    },
+    {
+      $unwind: '$department'
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        birthDay: 1,
+        sex: 1,
+        address: 1,
+        phone: 1,
+        status: 1,
+        avatar: 1,
+        managerEmail:1,
+        applyDay:1,
+        email: '$user.email',
+        positionName: '$position.name',
+        salary: '$position.salary',
+        trainName: '$train.name',
+        departmentName: '$department.name'
+      }
+    }
+  ]).exec(function(err, result) {
+    if (err) {
+      console.log(err);
     } else {
-      res.redirect('/login');
+      res.render('search', { employee:result, user: req.user });
     }
   });
+  // employee.find({}, (error, data) => {
+  //   if (req.isAuthenticated() && req.user.roleName ==='manager') {
+  //     res.render('search', { employee:data, user: req.user });
+  //   } else {
+  //     res.redirect('/login');
+  //   }
+  // });
 });
 
 router.post('/search', function(req, res) {
+  console.log('gia tri',req.body.searchText)
   if(req.body.searchText) {
     var regex = new RegExp(req.body.searchText, 'i');
-    var query = { 
-      $or: [
-            { hoten: regex },
-            { ngaysinh: regex } ,
-            { gioitinh: regex } ,
-            { diachi: regex } ,
-            { sdt: regex } ,
-            { chucvu: regex } ,
-            { phongban: regex } ,
-            { ngayvaocongty: regex } ,
-            { tinhtrang: regex } ,
-           ] };
-           employee.find(query).limit(10).exec(function(err, data) {
-            if(err) {
-              console.log(err);
-            } else {
-              console.log('data o nodejs: ',data);
-              res.render('search',{ test:data,user: req.user});
-            }
-          });
+    console.log('regex:', regex);
+    console.log('searchText:', req.body.searchText);
+    employee.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'email',
+          foreignField: 'email',
+          as: 'user'
+        }
+      },
+      {
+        $lookup: {
+          from: 'positions',
+          localField: 'positionName',
+          foreignField: 'name',
+          as: 'position'
+        }
+      },
+      {
+        $lookup: {
+          from: 'trains',
+          localField: 'trainName',
+          foreignField: 'name',
+          as: 'train'
+        }
+      },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'departmentName',
+          foreignField: 'name',
+          as: 'department'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $unwind: '$position'
+      },
+      {
+        $unwind: '$train'
+      },
+      {
+        $unwind: '$department'
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          birthDay: 1,
+          sex: 1,
+          address: 1,
+          phone: 1,
+          status: 1,
+          avatar: 1,
+          managerEmail:1,
+          applyDay:1,
+          email: '$user.email',
+          positionName: '$position.name',
+          salary: '$position.salary',
+          trainName: '$train.name',
+          departmentName: '$department.name'
+        }
+      },
+      // {
+      //   $match:
+      //     {
+      //       "position.salary": { $gte: req.body.minSalary }
+      //     }
+      // },
+      {
+        $match:
+          {
+            $or: [
+                  { name: regex },
+                  { "position.salary":regex },
+                  { birthDay: regex } ,
+                  { sex: regex } ,
+                  { address: regex } ,
+                  { phone: regex } ,
+                  { positionName: regex } ,
+                  { departmentName: regex } ,
+                  { applyDay: regex } ,
+                  { managerEmail: regex } ,
+                  { email: regex } ,
+                  { trainName: regex } ,
+                  { status: regex } ,
+                 ]
+          }
+      }
+    ]).exec(function(err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
+        res.render('search', { employee:result, user: req.user });
+      }
+    });
+
   }
 });
+// router.post('/search', function(req, res) {
+//   if(req.body.searchText) {
+//     var regex = new RegExp(req.body.searchText, 'i');
+//     var query = { 
+//       $or: [
+//             { name: regex },
+//             { birthDay: regex } ,
+//             { sex: regex } ,
+//             { address: regex } ,
+//             { phone: regex } ,
+//             { positionName: regex } ,
+//             { departmentName: regex } ,
+//             { applyDay: regex } ,
+//             { managerEmail: regex } ,
+//             { email: regex } ,
+//             { trainName: regex } ,
+//             { status: regex } ,
+//            ] };
+//            employee.find(query).limit(10).exec(function(err, data) {
+//             if(err) {
+//               console.log(err);
+//             } else {
+//               console.log('data o nodejs: ',data);
+//               res.render('search',{ employee:data,user: req.user});
+//             }
+//           });
+//   }
+// });
 
 
 // 
@@ -467,9 +868,9 @@ router.get('/position-delete/:id', function(req, res) {
 
 //train
 router.get('/train', function(req, res) {
-  if (req.isAuthenticated() && req.user.roleName ==='admin') {
+  if (req.isAuthenticated() && req.user.roleName ==='manager') {
     train.find({}, (error, data) => {
-      res.render('train', { train: data, currentUser: req.user.email });
+      res.render('train', { train: data, user: req.user });
     });
   } else {
     res.redirect('/login');
@@ -490,27 +891,77 @@ router.get('/train-update/:id',  function(req, res) {
     res.render('train-update', {trainCurrent:data});
   })
 });
-router.post('/train-update',  function(req, res) {
-  let name = req.body.ten;
-  let startTime = req.body.thoigianbatdau;
-  let endTime = req.body.thoigianketthuc;
-  train.findByIdAndUpdate(
+router.post('/train-update', async function(req, res) {
+  var name = req.body.ten;
+  var startTime = req.body.thoigianbatdau;
+  var endTime = req.body.thoigianketthuc;
+  var oldname;
+  await train.find({_id: req.body.id},function(err, data)
+  {
+    if (err) {
+      console.log(err);
+    }
+    else if (data) {
+      oldname = data[0].name;
+      console.log('ten dao tao cu la:',oldname);
+    }
+  });
+
+ await train.findByIdAndUpdate(
     {_id: req.body.id}, 
-    { $set: { name: name, startTime: startTime,endTime:endTime } },
+    { $set: { name: name,startTime:startTime,endTime:endTime} },
     function(err, data) {
       if (err) {
         console.log(err);
       }
+      employee.updateMany(
+        { trainName: oldname },
+        { $set: { trainName: name } },
+        { multi: true },
+        function(err, data) {
+          if (err) {
+            console.log(err);
+          }
+        }
+      );
       res.redirect('/train');
     }
   );
 });
 
 // delete train
-router.get('/train-delete/:id', function(req, res) {
-  train.findByIdAndDelete(req.params.id, function(err, data) {
+router.get('/train-delete/:id',async function(req, res) {
+
+  // Find the old name of the train using its ID
+  var oldname;
+  await train.find({_id: req.params.id},function(err, data)
+  {
+    if (err) {
+      console.log(err);
+    }
+    else if (data) {
+      oldname = data[0].name;
+      console.log('ten dao tao cu la:',oldname);
+    }
+  });
+
+  await employee.updateMany(
+    { trainName: oldname },
+    { $set: { trainName: '' } },
+    { multi: true },
+    function(err, data) {
+      if (err) {
+        console.log(err);
+      }
+    }
+  );
+  // Delete the train record using its ID
+  await train.findByIdAndDelete(req.params.id, function(err, data) {
+    if (err) {
+      console.log(err);
+    }
     res.redirect('/train');
-  })
+  });
 });
 
 // department

@@ -75,3 +75,7 @@ a {
 #toast.show {
   opacity: 1;
 }
+
+.panel a {
+  text-decoration: none;
+}

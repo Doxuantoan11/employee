@@ -3,57 +3,105 @@
 <form action="/update" method="POST" style="width: 450px;" enctype="multipart/form-data">
   <h1 class="container">Sửa thông tin cán bộ</h1>
   <div class="form-group container">
-    <input type="hidden" class="form-control" id="id" name="id" value="<%= test._id  %>">
+    <input type="hidden" class="form-control" id="id" name="id" value="<%= employee._id  %>">
   </div>
   <div class="form-group container">
     <label for="hoten">họ tên:</label>
-    <input type="text" class="form-control" id="hoten" name="hoten" value="<%= test.hoten  %>">
+    <input type="text" class="form-control" id="hoten" name="hoten" value="<%= employee.name  %>">
   </div>
   <div class="form-group container">
     <label for="ngaysinh">Ngày sinh:</label>
-    <input type="date" class="form-control" id="ngaysinh" name="ngaysinh" value="<%= test.ngaysinh  %>">
+    <input type="date" class="form-control" id="ngaysinh" name="ngaysinh" value="<%= employee.birthDay %>">
   </div>
   <div class="form-group container " name="gioitinh">Giới tính :
-    <label class="radio-inline mr-4 ml-4"><input type="radio" name="gioitinh" value="Nam" <%=test.gioitinh==='Nam'
+    <label class="radio-inline mr-4 ml-4"><input type="radio" name="gioitinh" value="Nam" <%=employee.sex==='Nam'
         ? 'checked' : '' %>>Nam</label>
-    <label class="radio-inline "><input type="radio" name="gioitinh" value="Nữ" <%=test.gioitinh==='Nữ' ? 'checked' : ''
+    <label class="radio-inline "><input type="radio" name="gioitinh" value="Nữ" <%=employee.sex==='Nữ' ? 'checked' : ''
         %>>Nữ</label>
   </div>
   <div class="form-group container">
     <label for="diachi">Địa chỉ:</label>
-    <input type="text" class="form-control" id="diachi" name="diachi" value="<%= test.diachi  %>">
+    <input type="text" class="form-control" id="diachi" name="diachi" value="<%= employee.address  %>">
   </div>
   <div class="form-group container">
     <label for="sdt">sdt:</label>
-    <input type="text" class="form-control" id="sdt" name="sdt" value="<%= test.sdt  %>">
+    <input type="text" class="form-control" id="sdt" name="sdt" value="<%= employee.phone  %>">
   </div>
-  <div class="form-group container"> Chức vụ:
+  <div class="form-group container">
+    Chức vụ:
     <select class="form-control" name="chucvu">
-      <option value="Trưởng phòng" <%=test.chucvu==='Trưởng phòng' ? 'selected' : '' %>>Trưởng phòng</option>
-      <option value="Tổ trưởng" <%=test.chucvu==='Tổ trưởng' ? 'selected' : '' %>>Tổ trưởng</option>
-      <option value="Nhân viên" <%=test.chucvu==='Nhân viên' ? 'selected' : '' %>>Nhân viên</option>
+      <% for (var i = 0; i < positionData.length; i++) {
+          if (positionData[i].name === employee.positionName) { %>
+            <option value="<%= positionData[i].name%>" selected><%= positionData[i].name%></option>
+          <% } else { %>
+            <option value="<%= positionData[i].name %>"><%= positionData[i].name %></option>
+          <% }
+      } %>
     </select>
   </div>
-  <div class="form-group container">Phòng ban:
+  <div class="form-group container">
+    Phòng ban:
     <select class="form-control" name="phongban">
-      <option value="Nhân sự" <%=test.phongban==='Nhân sự' ? 'selected' : '' %>>Nhân sự</option>
-      <option value="Sản xuất" <%=test.phongban==='Sản xuất' ? 'selected' : '' %>>Sản xuất</option>
-      <option value="Chất lượng" <%=test.phongban==='Chất lượng' ? 'selected' : '' %>>Chất lượng</option>
+      <% for (var i = 0; i < departmentData.length; i++) {
+          if (departmentData[i].name === employee.departmentName) { %>
+            <option value="<%= departmentData[i].name%>" selected><%= departmentData[i].name%></option>
+          <% } else { %>
+            <option value="<%= departmentData[i].name %>"><%= departmentData[i].name %></option>
+          <% }
+      } %>
     </select>
   </div>
   <div class="form-group container">
     <label for="ngayvaocongty">Ngày vào:</label>
-    <input type="date" class="form-control" id="ngayvaocongty" name="ngayvaocongty" value="<%= test.ngayvaocongty  %>">
+    <input type="date" class="form-control" id="ngayvaocongty" name="ngayvaocongty" value="<%= employee.applyDay%>">
+  </div>
+  <div class="form-group container">
+    Email:
+    <select class="form-control" name="email">
+      <% for (var i = 0; i < userData.length; i++) {
+          if (userData[i].email === employee.email) { %>
+            <option value="<%= userData[i].email %>" selected><%= userData[i].email %></option>
+          <% } else { %>
+            <option value="<%= userData[i].email %>"><%= userData[i].email %></option>
+          <% }
+      } %>
+    </select>
+  </div>
+  <div class="form-group container">
+    Quản lý:
+    <select class="form-control" name="quanly">
+      <% for (var i = 0; i < userData.length; i++) {
+        if (userData[i].roleName === 'manager') {
+          if (employee.managerEmail === userData[i].email) { %>
+            <option value="<%= userData[i].email %>" selected><%= userData[i].email %></option>
+          <% } else { %>
+            <option value="<%= userData[i].email %>"><%= userData[i].email %></option>
+          <% }
+        }
+      } %>
+    </select>
+  </div>
+  <div class="form-group container">
+    Đào tạo:
+    <select class="form-control" name="daotao">
+      <% for (var i = 0; i < trainData.length; i++) {
+          if (trainData[i].name === employee.trainName) { %>
+            <option value="<%= trainData[i].name %>" selected><%= trainData[i].name %></option>
+          <% } else { %>
+            <option value="<%= trainData[i].name %>"><%= trainData[i].name %></option>
+          <% }
+      } %>
+    </select>
   </div>
   <div class="form-group container">Tình trạng:
     <select class="form-control" name="tinhtrang">
-      <option value="Đang công tác" <%=test.tinhtrang==='Đang công tác' ? 'selected' : '' %>>Đang công tác</option>
-      <option value="Đã nghỉ" <%=test.tinhtrang==='Đã nghỉ' ? 'selected' : '' %>>Đã nghỉ</option>
+      <option value="Đang công tác" <%=employee.status==='Đang công tác' ? 'selected' : '' %>>Đang công tác</option>
+      <option value="Đã nghỉ" <%=employee.status==='Đã nghỉ' ? 'selected' : '' %>>Đã nghỉ</option>
     </select>
   </div>
   <div class="form-group container">
     <label for="hinhanh">Hình ảnh</label>
-    <img src="/images/<%= test.hinhanh %>" alt="" width="65" height="auto" class="ml-5 mb-3" id="hinhnen">
+    <img src="/images/<%= employee.avatar %>" alt="" width="65" height="auto" class="ml-5 mb-3" id="hinhnen">
     <input type="file" class="form-control" id="hinhanh" name="hinhanh" style="width: 370px;">
   </div>
   <div class="form-group container">
@@ -62,7 +110,7 @@
 </form>
 
 
-<!-- img preview -->
+
 <script>
   hinhanh.onchange = event => {
     const [file] = hinhanh.files;
@@ -71,3 +119,12 @@
     }
   }
 </script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+crossorigin="anonymous"></script>
